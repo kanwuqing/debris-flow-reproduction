@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="RainGaugeNet 复现项目" />
+  <meta name="dcterms.date" content="2026-09-26" />
+  <title>汶川震后泥石流多时相数据集的流程复现与降雨阈值/易发性建模</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+@page {
+size: A4;
+margin: 18mm 16mm 18mm 16mm;
+}
+html { font-size: 10.5pt; }
+body {
+font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB",
+"Source Han Sans SC", "Noto Sans CJK SC", SimSun, sans-serif;
+line-height: 1.65;
+color: #1a1a1a;
+max-width: 100%;
+margin: 0;
+text-align: justify;
+}
+h1, h2, h3, h4 {
+font-family: "Microsoft YaHei", "PingFang SC", "Source Han Sans SC", sans-serif;
+color: #10314f;
+line-height: 1.3;
+page-break-after: avoid;
+}
+h1 {
+font-size: 1.55rem;
+border-bottom: 2px solid #10314f;
+padding-bottom: 0.25rem;
+margin-top: 1.6rem;
+}
+h2 { font-size: 1.25rem; margin-top: 1.4rem; }
+h3 { font-size: 1.08rem; margin-top: 1.1rem; }
+
+#title-block-header {
+border-bottom: 3px double #10314f;
+margin-bottom: 1.4rem;
+padding-bottom: 0.6rem;
+text-align: center;
+}
+#title-block-header .title { font-size: 1.7rem; font-weight: 700; color: #10314f; }
+#title-block-header .subtitle { font-size: 1.0rem; color: #4a5b6b; margin-top: 0.3rem; }
+#title-block-header .author,
+#title-block-header .date { font-size: 0.9rem; color: #6b7785; margin-top: 0.2rem; }
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 0.75rem 0;
+font-size: 0.85rem;
+page-break-inside: avoid;
+}
+th, td {
+border: 1px solid #c7d0d9;
+padding: 0.28rem 0.42rem;
+text-align: left;
+vertical-align: top;
+}
+th { background: #eef3f8; font-weight: 600; color: #10314f; }
+tr:nth-child(even) td { background: #fafbfc; }
+code {
+font-family: Consolas, "Cascadia Mono", "Courier New", monospace;
+font-size: 0.86em;
+background: #f2f4f7;
+padding: 0.05em 0.3em;
+border-radius: 3px;
+}
+pre {
+background: #f6f8fa;
+border: 1px solid #d8dee4;
+border-left: 3px solid #10314f;
+border-radius: 4px;
+padding: 0.6rem 0.8rem;
+overflow-x: auto;
+font-size: 0.8rem;
+page-break-inside: avoid;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+margin: 0.7rem 0;
+padding: 0.45rem 0.85rem;
+border-left: 4px solid #e8a33d;
+background: #fffaf0;
+color: #4a3a1a;
+page-break-inside: avoid;
+}
+blockquote p { margin: 0.25rem 0; }
+strong { color: #8c2f0d; }
+hr { border: none; border-top: 1px solid #d0d7de; margin: 1.4rem 0; }
+
+figure, img { max-width: 100%; page-break-inside: avoid; }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">汶川震后泥石流多时相数据集的流程复现与降雨阈值/易发性建模</h1>
+<p class="subtitle">复现对象：Wang, Chang, Le, Xiang &amp; Ni (2022),
+Scientific Data 9:525</p>
+<p class="author">RainGaugeNet 复现项目</p>
+<p class="date">2026-09-26</p>
+</header>
+<h1 id="摘要与核心结论">1. 摘要与核心结论</h1>
+<p>本文对数据论文 <strong>Wang, L., Chang, M., Le, J., Xiang, L. &amp;
+Ni, Z. (2022).</strong> <em>Two multi-temporal datasets to track debris
+flow after the 2008 Wenchuan earthquake.</em> <strong>Scientific Data
+9:525</strong>（<a href="https://doi.org/10.1038/s41597-022-01658-y">doi:10.1038/s41597-022-01658-y</a>，
+数据 <a href="https://doi.org/10.5281/zenodo.6891244">doi:10.5281/zenodo.6891244</a>）
+所发布的龙门山震中区数据，完成了<strong>从原始数据到降雨阈值与易发性分类的完整流程复现</strong>。</p>
+<blockquote>
+<p><strong>必须先说清楚复现的性质。</strong> 该论文是 <strong>Data
+Descriptor（数据论文）</strong>，正文不含任何降雨阈值拟合或易发性建模，
+也没有报告任何 I–D
+曲线系数。因此本文<strong>不是</strong>对原文数值的复刻，而是
+<strong>用论文发布的数据完成它自己建议的应用</strong>——原文摘要写明这批数据
+<em>“can aid different applications, including the early warning and
+engineering prevention of post-earthquake debris
+flow”</em>。原文可供核验的对象只有两套数据本身（事件、降雨、坝体），
+本文对它们的复现性做了独立校验（见
+C1）；所有模型与阈值结果都是<strong>本项目的实验结论</strong>。</p>
+</blockquote>
+<h2 id="核心结论">核心结论</h2>
+<p><strong>C1｜数据可复现，规模与原文自洽。</strong> 清洗后得到
+<strong>186 条泥石流事件</strong>、<strong>79 个流域</strong>、
+<strong>465 个逐小时降雨文件</strong>，事件跨 <strong>2008–2020
+年</strong>，与原文声明的 <em>“186 debris flows affecting 79
+watersheds”</em> 完全一致。本文用鞋带公式独立重算的流域面积合计
+<strong>851.0 km²</strong>，原文声明研究区 <strong>892
+km²</strong>，相对偏差 <strong>−4.6%</strong>（差值是原文研究区边界与 79
+个流域多边形之和的口径差异，不是错误）。 流域多边形面积与
+<code>.dbf</code> 属性 <code>Area</code> 的最大相对误差
+<strong>2.5×10⁻⁶</strong>，79 行中超过 1% 的有 <strong>0</strong>
+行。</p>
+<p><strong>C2｜降雨确实能区分触发／非触发，且信号主要来自”雨量”与”历时”，不是”短时雨强”。</strong>
+在 1597 行（444 正 / 1153 负，正例率 27.8%）的雨场级数据集上，主协议
+<code>GroupKFold</code>（按事件 <code>DF_ID</code>
+分组，杜绝同一次事件跨折泄漏）下随机森林达到 <strong>accuracy 0.9562 /
+precision 0.9329 / recall 0.9077 / F1 0.9201 / ROC-AUC 0.9832</strong>。
+随机划分协议只把 accuracy 抬到 0.9625（<strong>仅高 0.63
+个百分点</strong>），说明
+“一次事件多个雨量站”带来的乐观偏差在本数据上<strong>存在但有限</strong>。
+特征重要性显示前两位是 <strong><code>n_wet_hours</code>
+(0.174)、<code>duration_h</code> (0.172)</strong>， 第 3–5 位是
+<code>max_24h</code> (0.090)、<code>max_72h</code>
+(0.072)、<code>total_mm</code> (0.068)； 而单小时峰值
+<strong><code>max_1h</code> 仅 0.022（排第
+14/16）</strong>——<strong>降雨持续时长与长窗口累计量
+比短时强降雨更能判别触发</strong>。分布侧同向：触发场
+<code>total_mm</code> 中位数 49.1 mm vs 非触发场 9.0 mm（差 5.5 倍），而
+<code>mean_intensity</code> 只差 2.62 vs 2.15 mm/h（差 1.2 倍）。</p>
+<p><strong>C3｜经验 I–D
+阈值显著弱于机器学习，且”高召回”与”高精度”不可兼得。</strong>
+六条经验曲线在同一批 1597 行、同一批标签上评分：准确率最高的是
+<code>quantile_p90_trigger</code>
+（<code>I = 47.35·D^(−0.5535)</code>）accuracy
+<strong>0.7733</strong>、precision <strong>0.9271</strong>，但 recall
+只有 <strong>0.2005</strong>—— <strong>漏报 80%
+的触发场</strong>，作为预警阈值不可用；反过来
+<code>ols_all_points</code> （<code>I = 8.416·D^(−0.8011)</code>）recall
+<strong>0.9369</strong> 但 precision 仅 <strong>0.4361</strong>，
+意味着<strong>报 10 次警有 5.6 次是空的</strong>。经验曲线里 F1 最高只有
+<strong>0.6055</strong>， 随机森林是 <strong>0.9201</strong>，差距
+<strong>0.31</strong>。</p>
+<p><strong>C4｜I–D
+幂律只在”分位数包络”上成立，在原始点云上并不成立。</strong>
+这是本次复现最重要的方法学发现。 对全部 11179 个 (D, I) 窗口点直接做
+OLS，<strong>r² = 0.3503</strong>；只用触发点做 OLS，<strong>r² =
+0.4855</strong>—— 即原始点云只能被幂律解释 <strong>35%–49%</strong> 的
+log–log 方差。
+而改为”对每个固定窗长先取分位数、再对分位数点拟合幂律”，r² 立刻升到
+<strong>0.9649–0.9911</strong>。这说明：文献里 I–D
+幂律的成立<strong>依赖于先按 D 分箱再取包络</strong>，
+把所有点直接丢进最小二乘会得到一条 r² 只有 0.35 的”假幂律”。
+本项目因此<strong>并列报告两类拟合</strong>，而不是只报好看的那条。</p>
+<p><strong>C5｜易发性可预测，但信号弱、方差大。</strong> 79 个流域的
+RepeatedStratifiedKFold （5 折 × 10
+次）结果显示，逻辑回归准确率最高（<strong>0.7598 ± 0.0970，F1 0.7307 ±
+0.1079</strong>）， XGBoost 的 ROC-AUC
+最高（<strong>0.8186</strong>）。标准差约 <strong>0.08–0.11</strong>，
+而模型间 accuracy 差距（0.7115–0.7598）<strong>小于一个标准差</strong>，
+因此<strong>不应据此给模型排序</strong>。</p>
+<p><strong>C6｜工程防治与事件数之间存在明显的选址偏差，本数据无法评估坝的效果。</strong>
+无坝流域（56 个）平均 <strong>1.88</strong> 次事件；有坝流域平均
+<strong>2.55–3.00</strong> 次 （1 坝 2.78、2 坝 3.00、≥3 坝
+2.55）——<strong>坝恰恰建在灾害更频发的地方</strong>。
+同向证据：<code>corr(area, has_dam) = 0.5133</code>（大流域更可能有坝），
+而 <code>corr(area, n_events) = −0.0175</code>（面积与事件数几乎无关）。
+在这种横截面数据上，任何”有坝 →
+事件更多/更少”的推断都<strong>不成立</strong>。</p>
+<p><strong>C7｜跨期泛化不可评估。</strong> <code>temporal</code>
+协议（训练 ≤2013 共 1540 行，测试 ≥2016 仅 <strong>57 行</strong>）
+给出的指标在模型间剧烈摆动：随机森林 accuracy
+<strong>0.8947</strong>，逻辑回归 <strong>0.9825</strong>。 57
+行测试集不足以支撑任何关于”阈值随震后恢复”的结论，本文<strong>明确不采信</strong>该协议的数字。</p>
+<hr />
+<h1 id="数据描述">2. 数据描述</h1>
+<h2 id="来源与获取">2.1 来源与获取</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>论文</td>
+<td>Scientific Data 9:525（2022-08-27 在线）</td>
+</tr>
+<tr>
+<td>数据 DOI</td>
+<td>10.5281/zenodo.6891244</td>
+</tr>
+<tr>
+<td>许可</td>
+<td>CC BY 4.0</td>
+</tr>
+<tr>
+<td>研究区</td>
+<td>龙门山断裂带震中区（汶川县及邻区），约 892 km²</td>
+</tr>
+<tr>
+<td>时间跨度</td>
+<td>2008–2020</td>
+</tr>
+</tbody>
+</table>
+<p>原始数据<strong>不由本仓库分发</strong>，需从 Zenodo 下载后放至
+<code>data/raw/</code>（目录约定见 <code>README.md</code> §3）。</p>
+<h2 id="两套数据集的结构">2.2 两套数据集的结构</h2>
+<p><strong>数据集 1：泥石流事件与触发降雨</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th>类型</th>
+<th>关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dataset1_Debris flow.csv</code></td>
+<td>表</td>
+<td><code>DF_ID</code>, <code>Gully name</code>, <code>Latitude</code>,
+<code>Longitude</code>, <code>Year/Month/Day</code>,
+<code>Time(24 hour)</code>, <code>Deposition volume (m3)</code>,
+<code>Reference of Data source</code></td>
+</tr>
+<tr>
+<td><code>Debris_flow_catchment.shp/.dbf</code></td>
+<td>79 个流域多边形</td>
+<td><code>Name</code>, <code>CID</code>, <code>County</code>,
+<code>Area</code></td>
+</tr>
+<tr>
+<td><code>ID_RG_DF_&lt;DF_ID&gt;/*.txt</code></td>
+<td>465 个逐小时降雨序列</td>
+<td>文件名
+<code>&lt;seq&gt;_&lt;rg_id&gt;_&lt;YYYYMMDDHH&gt;</code>；正文两列
+<code>YYYYMMDDHH</code> + 雨量(mm)</td>
+</tr>
+</tbody>
+</table>
+<p>每个 <code>ID_RG_DF_&lt;DF_ID&gt;/</code> 文件夹存放<strong>该事件 8
+km 范围内的所有雨量站</strong>、在 <strong>事件前 7 天至事件后 1
+天</strong>窗口内的逐小时序列（依据官方 <code>Read me</code>
+说明）。</p>
+<p><strong>数据集 2：工程防治措施（拦砂坝）</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th>关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dataset2_Dam.csv</code></td>
+<td><code>Name</code>, <code>C_ID</code>, <code>Dam number</code>,
+<code>Built Time</code>,
+<code>Successful prevention and control</code></td>
+</tr>
+<tr>
+<td><code>Dataset2_damdata.shp</code> 等</td>
+<td>坝体点位（<code>Dam_ID</code>, <code>C_ID</code>, 坐标）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="数据规模实测">2.3 数据规模实测</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>泥石流事件数</td>
+<td>186</td>
+</tr>
+<tr>
+<td>流域多边形数</td>
+<td>79</td>
+</tr>
+<tr>
+<td>降雨序列文件数</td>
+<td>465</td>
+</tr>
+<tr>
+<td>含降雨数据的事件文件夹数</td>
+<td>147</td>
+</tr>
+<tr>
+<td>降雨文件中出现的雨量站编号数</td>
+<td>39</td>
+</tr>
+<tr>
+<td>拦砂坝总数</td>
+<td>55（分布在 23 个流域）</td>
+</tr>
+<tr>
+<td>无坝流域数</td>
+<td>56</td>
+</tr>
+<tr>
+<td>零事件流域数</td>
+<td>12</td>
+</tr>
+<tr>
+<td>流域面积中位数</td>
+<td>5.59 km²（最大 54.73 km²）</td>
+</tr>
+<tr>
+<td>流域面积合计</td>
+<td>851.0 km²</td>
+</tr>
+</tbody>
+</table>
+<p><strong>逐年事件数</strong>（合计 186）：</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>2008</th>
+<th>2009</th>
+<th>2010</th>
+<th>2011</th>
+<th>2012</th>
+<th>2013</th>
+<th>2016</th>
+<th>2019</th>
+<th>2020</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事件数</td>
+<td>29</td>
+<td>6</td>
+<td><strong>98</strong></td>
+<td>22</td>
+<td>1</td>
+<td>16</td>
+<td>1</td>
+<td>12</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>2014、2015、2017、2018 四年<strong>没有事件记录</strong>。2010
+年占全部事件的 <strong>52.7%</strong>（98/186）， 对应 “8·13”
+群发泥石流；2013 年（16 次）对应 “7·10”；2019 年（12 次）对应 “8·20”。
+<strong>事件在时间上高度集中</strong>，这一点直接决定了后文交叉验证协议的选择。</p>
+<hr />
+<h1 id="数据清洗">3. 数据清洗</h1>
+<p>清洗层实现在 <code>src/wenchuan/clean.py</code>，产出三张中间表到
+<code>data/interim/</code>。
+过程中有三个<strong>会改变结论</strong>的问题必须显式处理，下面逐条记录。</p>
+<h2 id="坐标列名与内容是反的">3.1 坐标列名与内容是反的</h2>
+<p><code>Dataset1_Debris flow.csv</code> 中名为 <code>Latitude</code>
+的列实际存放 <strong>103.x（经度）</strong>， 名为
+<code>Longitude</code> 的列实际存放
+<strong>31.x（纬度）</strong>。龙门山震中区不可能有纬度 103°。</p>
+<p><strong>处理</strong>：<code>io.load_events()</code>
+把两列重命名为真值 <code>lon</code> / <code>lat</code>，原始列另存为
+<code>Latitude_raw</code> / <code>Longitude_raw</code>
+以便追溯。清洗后形心经度范围 <strong>103.3258–103.6323</strong>、纬度
+<strong>30.9894–31.4772</strong>，与该区域真实位置吻合。
+<strong>若不修正，所有空间归属都会落到地球另一侧。</strong></p>
+<h2 id="条事件没有时刻">3.2 95/186 条事件没有时刻</h2>
+<p><code>Time(24 hour)</code> 字段为 <code>-</code>。这些事件的
+<code>datetime</code> 用当天 00:00 兜底， 并置
+<code>time_missing = True</code>（共 <strong>95</strong>
+条）。因此降雨触发判定以<strong>整个日历日</strong>为窗口
+（<code>features.label_triggers</code>），而不是拿 12:00 当精确时刻。
+这也是
+<code>trigger_overlap_h == 0</code>（当天无雨、退化为”取当天前最后一场雨”）的
+<strong>7 / 444</strong> 行正样本的来源，该退化比例可接受且已量化。</p>
+<h2 id="事件名与流域名是两种写法">3.3 事件名与流域名是两种写法</h2>
+<p>事件表存<strong>单个沟名</strong>（如
+<code>Mayangdian</code>），流域表存 <strong><code>/</code>
+连接的多沟名</strong> （如
+<code>Douyaping/Mayangdian/Maliuwan/Qingling/Guanshan</code> →
+<code>W16</code>）。</p>
+<p><strong>处理</strong>：<code>clean.build_catchment_lookup()</code>
+把流域名拆成子名建立索引，
+再做<strong>最长匹配</strong>兜底；名称仍无法匹配时，<code>catchment_assign.py</code>
+用 <strong>点-多边形空间关系</strong>兜底，并记录
+<code>catchment_source ∈ {name, geometry, unassigned}</code>。 最终
+<strong>167 / 186（89.8%）</strong> 条事件获得了 <code>C_ID</code>。</p>
+<h2 id="其它清洗动作">3.4 其它清洗动作</h2>
+<ul>
+<li>表头 BOM
+与前后空白统一去除（<code>encoding=&quot;utf-8-sig&quot;</code>）。</li>
+<li>降雨序列排序、按小时去重求和；抽样 60
+个文件诊断：<strong>最大缺失小时数 0</strong>， 时间步长唯一值为
+<strong>1.0 h</strong>——序列完整且严格等间隔。</li>
+<li><code>Built Time</code> 支持 <code>2013</code> 与
+<code>2011-2013</code> 两种写法，后者取首年。</li>
+<li><code>Successful prevention and control</code> 归一化为布尔
+<code>prevented</code>，并保留 <code>prevention_known</code>
+区分”明确为否”与”未记录”。</li>
+</ul>
+<hr />
+<h1 id="特征工程">4. 特征工程</h1>
+<h2 id="降雨场次切分">4.1 降雨场次切分</h2>
+<p>窗口内远不止一场雨，因此它<strong>天然提供了非触发场次作为负样本</strong>，
+不需要合成负样本。一场”雨”的定义（常量集中在 <code>features.py</code>
+顶部）：</p>
+<table>
+<thead>
+<tr>
+<th>常量</th>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WET_MM</code></td>
+<td>0.1</td>
+<td>小时雨量 ≥ 该值算”湿小时”</td>
+</tr>
+<tr>
+<td><code>DRY_GAP_H</code></td>
+<td>6</td>
+<td>连续干小时 &gt; 6 h 才切成两场</td>
+</tr>
+<tr>
+<td><code>MIN_TOTAL_MM</code></td>
+<td>1.0</td>
+<td>场次总雨量 &lt; 1 mm 丢弃</td>
+</tr>
+<tr>
+<td><code>API_K</code></td>
+<td>0.9</td>
+<td>前期降水指数的小时衰减系数</td>
+</tr>
+</tbody>
+</table>
+<h2 id="降雨特征16-个">4.2 降雨特征（16 个）</h2>
+<p><code>duration_h</code>, <code>n_wet_hours</code>,
+<code>total_mm</code>, <code>max_1h</code>, <code>max_3h</code>,
+<code>max_6h</code>, <code>max_12h</code>, <code>max_24h</code>,
+<code>max_48h</code>, <code>max_72h</code>, <code>mean_intensity</code>,
+<code>peak_intensity</code>, <code>antecedent_24h</code>,
+<code>antecedent_72h</code>, <code>antecedent_168h</code>,
+<code>api</code></p>
+<p><strong>触发场 vs 非触发场的分布差异</strong>（中位数）：</p>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>触发场 (n=444)</th>
+<th>非触发场 (n=1153)</th>
+<th>倍数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>total_mm</code></td>
+<td>49.10</td>
+<td>9.00</td>
+<td>5.5×</td>
+</tr>
+<tr>
+<td><code>n_wet_hours</code></td>
+<td>19.0</td>
+<td>5.0</td>
+<td>3.8×</td>
+</tr>
+<tr>
+<td><code>duration_h</code></td>
+<td>20.0</td>
+<td>8.0</td>
+<td>2.5×</td>
+</tr>
+<tr>
+<td><code>max_24h</code> (mm)</td>
+<td>44.80</td>
+<td>9.00</td>
+<td>5.0×</td>
+</tr>
+<tr>
+<td><code>max_1h</code> (mm)</td>
+<td>15.90</td>
+<td>4.90</td>
+<td>3.2×</td>
+</tr>
+<tr>
+<td><code>antecedent_24h</code> (mm)</td>
+<td>29.40</td>
+<td>0.00</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>api</code></td>
+<td>5.06</td>
+<td>0.07</td>
+<td>72×</td>
+</tr>
+<tr>
+<td><code>mean_intensity</code> (mm/h)</td>
+<td>2.62</td>
+<td>2.15</td>
+<td><strong>1.2×</strong></td>
+</tr>
+</tbody>
+</table>
+<p>注意最后一行：<code>mean_intensity</code> 两组的差距（2.62 vs
+2.15）<strong>远小于</strong> <code>total_mm</code>（49.1 vs 9.0）——
+<strong>这是 C2
+结论的分布侧证据：区分能力主要在”下了多少、下了多久”，而不是”下得多急”。</strong></p>
+<h2 id="流域特征13-个">4.3 流域特征（13 个）</h2>
+<p>形态类：<code>area_km2</code>, <code>poly_perimeter_km</code>,
+<code>compactness = 4πA/P²</code>, <code>bbox_width_km</code>,
+<code>bbox_height_km</code>, <code>bbox_aspect</code>,
+<code>centroid_lon</code>, <code>centroid_lat</code>,
+<code>n_gullies</code> 防治类：<code>dam_number</code>,
+<code>has_dam</code>, <code>built_year</code>,
+<code>has_built_year</code></p>
+<blockquote>
+<p><strong>不造数据。</strong> 数据集<strong>不含
+DEM</strong>，因此<strong>不虚构坡度或高程特征</strong>
+（<code>catchment_geom.py</code> 顶部明确声明）。流域形态特征由手写 SHP
+读取器计算， 多边形坐标位于 WGS84 / UTM 48N，面积为米制。</p>
+</blockquote>
+<hr />
+<h1 id="任务-a降雨阈值分类">5. 任务 A：降雨阈值分类</h1>
+<h2 id="样本构造">5.1 样本构造</h2>
+<ul>
+<li><strong>一行 = 一个（雨量站文件, 雨场）对</strong>。</li>
+<li><strong>正样本</strong>：与泥石流发生日重叠的雨场。</li>
+<li><strong>负样本</strong>：同一文件夹窗口内的其它雨场（来自数据自身，非合成）。</li>
+<li>结果：<strong>1597 行 / 444 正 / 1153 负，正例率 27.8%</strong>；
+行来自 <strong>146</strong> 个事件文件夹（其中 <strong>144</strong>
+个含至少一个被标注的触发场），涉及 <strong>39</strong> 个雨量站。</li>
+</ul>
+<h2 id="关键问题行与行不独立">5.2 关键问题：行与行不独立</h2>
+<p>一次泥石流事件贡献<strong>多个</strong>雨量站文件，它的触发雨场在多个站上被<strong>重复计入</strong>。
+随机划分会把同一场雨同时放进训练和测试，构成<strong>泄漏</strong>。
+因此本文<strong>同时报告三种协议</strong>，把泄漏造成的乐观偏差<strong>量化出来</strong>而不是藏起来：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>协议</th>
+<th>划分方式</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>random</code></td>
+<td>分层随机 7:3</td>
+<td>有泄漏，<strong>仅作乐观上界</strong>，不作为结论</td>
+</tr>
+<tr>
+<td><code>group_event</code></td>
+<td><code>GroupKFold</code>，以 <code>DF_ID</code> 分组</td>
+<td><strong>主协议</strong>，同一次事件不跨折</td>
+</tr>
+<tr>
+<td><code>temporal</code></td>
+<td>训练 ≤2013，测试 ≥2016</td>
+<td>检验跨期泛化</td>
+</tr>
+</tbody>
+</table>
+<h2 id="结果">5.3 结果</h2>
+<h3 id="协议-group_event主协议">协议
+<code>group_event</code>（主协议）</h3>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>accuracy</th>
+<th>precision</th>
+<th>recall</th>
+<th>F1</th>
+<th>ROC-AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>logistic_regression</td>
+<td>0.9036</td>
+<td>0.8059</td>
+<td>0.8604</td>
+<td>0.8322</td>
+<td>0.9225</td>
+</tr>
+<tr>
+<td><strong>random_forest</strong></td>
+<td><strong>0.9562</strong></td>
+<td><strong>0.9329</strong></td>
+<td><strong>0.9077</strong></td>
+<td><strong>0.9201</strong></td>
+<td><strong>0.9832</strong></td>
+</tr>
+<tr>
+<td>svm_rbf</td>
+<td>0.9180</td>
+<td>0.8323</td>
+<td>0.8829</td>
+<td>0.8568</td>
+<td>0.9340</td>
+</tr>
+<tr>
+<td>gradient_boosting</td>
+<td>0.9555</td>
+<td>0.9388</td>
+<td>0.8986</td>
+<td>0.9183</td>
+<td>0.9735</td>
+</tr>
+<tr>
+<td>xgboost</td>
+<td>0.9580</td>
+<td>0.9415</td>
+<td>0.9054</td>
+<td>0.9231</td>
+<td>0.9802</td>
+</tr>
+</tbody>
+</table>
+<p>随机森林混淆矩阵
+<code>[[1124, 29], [41, 403]]</code>：<strong>1124</strong>
+个真负、<strong>29</strong> 个假正、 <strong>41</strong>
+个假负、<strong>403</strong> 个真正。假负（漏报触发场）41
+个，是预警场景中最需要关注的错误类型。</p>
+<h3 id="协议-random有泄漏仅作对照">协议
+<code>random</code>（有泄漏，仅作对照）</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>accuracy</th>
+<th>precision</th>
+<th>recall</th>
+<th>F1</th>
+<th>ROC-AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>logistic_regression</td>
+<td>0.9125</td>
+<td>0.8182</td>
+<td>0.8797</td>
+<td>0.8478</td>
+<td>0.9214</td>
+</tr>
+<tr>
+<td>random_forest</td>
+<td>0.9625</td>
+<td>0.9389</td>
+<td>0.9248</td>
+<td>0.9318</td>
+<td>0.9876</td>
+</tr>
+<tr>
+<td>svm_rbf</td>
+<td>0.9250</td>
+<td>0.8593</td>
+<td>0.8722</td>
+<td>0.8657</td>
+<td>0.9224</td>
+</tr>
+<tr>
+<td>gradient_boosting</td>
+<td>0.9583</td>
+<td>0.9313</td>
+<td>0.9173</td>
+<td>0.9242</td>
+<td>0.9785</td>
+</tr>
+<tr>
+<td>xgboost</td>
+<td>0.9646</td>
+<td>0.9462</td>
+<td>0.9248</td>
+<td>0.9354</td>
+<td>0.9890</td>
+</tr>
+</tbody>
+</table>
+<p><strong>泄漏代价</strong>：随机森林 accuracy 从 0.9562 →
+0.9625（<strong>+0.63 pp</strong>）， F1 从 0.9201 →
+0.9318（<strong>+1.17 pp</strong>）。<strong>偏差存在但不大</strong>。
+这个量化的”+0.6～1.2 pp”本身就是本次复现的一个有用产出：
+说明在这批数据上，<strong>按事件分组的严谨协议并不会让结论崩塌</strong>，
+但也提醒同类研究不应只报随机划分的数字。</p>
+<h3 id="协议-temporal不采信">协议
+<code>temporal</code>（<strong>不采信</strong>）</h3>
+<p>训练 ≤2013（1540 行）／测试 ≥2016（<strong>57 行</strong>，含
+2016、2019、2020）。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>accuracy</th>
+<th>precision</th>
+<th>recall</th>
+<th>F1</th>
+<th>ROC-AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>logistic_regression</td>
+<td>0.9825</td>
+<td>0.9583</td>
+<td>1.0000</td>
+<td>0.9787</td>
+<td>0.9949</td>
+</tr>
+<tr>
+<td>random_forest</td>
+<td>0.8947</td>
+<td>1.0000</td>
+<td>0.7391</td>
+<td>0.8500</td>
+<td>0.9987</td>
+</tr>
+<tr>
+<td>svm_rbf</td>
+<td>0.9825</td>
+<td>0.9583</td>
+<td>1.0000</td>
+<td>0.9787</td>
+<td>0.9987</td>
+</tr>
+<tr>
+<td>gradient_boosting</td>
+<td>0.8772</td>
+<td>1.0000</td>
+<td>0.6957</td>
+<td>0.8205</td>
+<td>0.9859</td>
+</tr>
+<tr>
+<td>xgboost</td>
+<td>0.8772</td>
+<td>1.0000</td>
+<td>0.6957</td>
+<td>0.8205</td>
+<td>0.9923</td>
+</tr>
+</tbody>
+</table>
+<p>ROC-AUC 全部 ≥0.986 而 accuracy 在 0.877–0.983 间乱跳，
+是<strong>小测试集 + 阈值敏感</strong>的典型表现（57 行里 23 个正例，1
+个样本 ≈ 1.8 pp）。
+该协议<strong>只能说明”模型学到了可跨期的信号”，不能给出任何性能估计</strong>，
+更不能据此论证阈值随震后恢复。</p>
+<h2 id="特征重要性task-a随机森林杂质重要性全部-16-项">5.4
+特征重要性（Task A，随机森林杂质重要性，全部 16 项）</h2>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>特征</th>
+<th>重要性</th>
+<th>排名</th>
+<th>特征</th>
+<th>重要性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>n_wet_hours</code></td>
+<td><strong>0.1739</strong></td>
+<td>9</td>
+<td><code>antecedent_72h</code></td>
+<td>0.0522</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>duration_h</code></td>
+<td><strong>0.1715</strong></td>
+<td>10</td>
+<td><code>antecedent_24h</code></td>
+<td>0.0406</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>max_24h</code></td>
+<td>0.0899</td>
+<td>11</td>
+<td><code>max_12h</code></td>
+<td>0.0336</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>max_72h</code></td>
+<td>0.0723</td>
+<td>12</td>
+<td><code>max_3h</code></td>
+<td>0.0258</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>total_mm</code></td>
+<td>0.0681</td>
+<td>13</td>
+<td><code>peak_intensity</code></td>
+<td>0.0226</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>api</code></td>
+<td>0.0643</td>
+<td>14</td>
+<td><code>max_1h</code></td>
+<td><strong>0.0217</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>antecedent_168h</code></td>
+<td>0.0621</td>
+<td>15</td>
+<td><code>mean_intensity</code></td>
+<td>0.0217</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>max_48h</code></td>
+<td>0.0611</td>
+<td>16</td>
+<td><code>max_6h</code></td>
+<td>0.0184</td>
+</tr>
+</tbody>
+</table>
+<p><strong>前两位全是”时长”类特征</strong>（湿小时数、降雨历时），单小时峰值
+<code>max_1h</code> 排到第 14。 这与 4.2
+节的分布观察一致。对预警实践的含义：
+<strong>盯着降雨持续时间和累计雨量，比盯短时强降雨更有效</strong>（在这批数据上）。</p>
+<hr />
+<h1 id="经验-id-阈值与对比">6. 经验 I–D 阈值与对比</h1>
+<h2 id="方法学要点为什么必须用固定时间窗">6.1
+方法学要点：为什么必须用固定时间窗</h2>
+<p>经典形式为 <code>I = a·D^(−b)</code>（Caine 1980 的幂律形式）。
+本文<strong>第一版实现按”湿 spell 长度”取 D</strong>，效果明显更差：</p>
+<ul>
+<li>湿 spell 中位数 <strong>20 h</strong>、最长 <strong>82
+h</strong>——因为 6 h 干间隔把连续季风降雨合并了；</li>
+<li>由此得到的 (D, I) 点云 log–log Pearson r 只有
+<strong>0.274</strong>， 且 OLS
+斜率被少数极端长历时样本主导，<strong>不能刻画物理包络</strong>。</li>
+</ul>
+<blockquote>
+<p>早期草稿的 <code>threshold.py</code> 文档字符串曾写这里”几乎零相关（r
+≈ −0.08）“。 <strong>本次复算不成立</strong>：实际 Pearson r =
+<strong>+0.274</strong>（n = 1597）。 该注释与
+<code>make_figures.py</code> 图 1 标题里的”r = 0.01” 均已按实测值更正，
+更正记录见 §10.6。<strong>报告只引用可复算的数字。</strong></p>
+</blockquote>
+<p><strong>修正</strong>：改为对每个固定窗长 D，取<strong>任意 D
+小时窗口内的最大雨量</strong>，<code>I(D) = P_max(D)/D</code>。
+窗长集合为 <strong>1, 3, 6, 12, 24, 48, 72 h</strong>，每个雨场贡献 7
+个点， 共构造 <strong>11179</strong> 个 (D, I) 对。</p>
+<h2 id="六条经验曲线及评分">6.2 六条经验曲线及评分</h2>
+<p>全部曲线在<strong>同一批 1597 行、同一批标签</strong>上与 ML
+模型同口径评分 （判定规则：<code>I_obs(D) &gt; I_thr(D)</code>
+即预报触发）。</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>名称</th>
+<th>方程</th>
+<th>拟合 r²</th>
+<th>accuracy</th>
+<th>precision</th>
+<th>recall</th>
+<th>F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ols_all_points</code></td>
+<td><code>I = 8.416·D^(−0.8011)</code></td>
+<td>0.3503</td>
+<td>0.6456</td>
+<td>0.4361</td>
+<td><strong>0.9369</strong></td>
+<td>0.5951</td>
+</tr>
+<tr>
+<td><code>ols_trigger_only</code></td>
+<td><code>I = 17.72·D^(−0.6521)</code></td>
+<td>0.4855</td>
+<td>0.6807</td>
+<td>0.4446</td>
+<td>0.5968</td>
+<td>0.5096</td>
+</tr>
+<tr>
+<td><code>ols_trigger_minus_1sd</code></td>
+<td><code>I = 6.829·D^(−0.6521)</code></td>
+<td>0.4855</td>
+<td>0.6606</td>
+<td>0.4473</td>
+<td><strong>0.9369</strong></td>
+<td><strong>0.6055</strong></td>
+</tr>
+<tr>
+<td><code>quantile_p50_trigger</code></td>
+<td><code>I = 18.47·D^(−0.7397)</code></td>
+<td><strong>0.9909</strong></td>
+<td>0.7120</td>
+<td>0.4881</td>
+<td>0.7365</td>
+<td>0.5871</td>
+</tr>
+<tr>
+<td><code>quantile_p90_trigger</code></td>
+<td><code>I = 47.35·D^(−0.5535)</code></td>
+<td>0.9649</td>
+<td><strong>0.7733</strong></td>
+<td><strong>0.9271</strong></td>
+<td>0.2005</td>
+<td>0.3296</td>
+</tr>
+<tr>
+<td><code>quantile_p90_all</code></td>
+<td><code>I = 43.81·D^(−0.742)</code></td>
+<td><strong>0.9911</strong></td>
+<td>0.7558</td>
+<td>0.6154</td>
+<td>0.3243</td>
+<td>0.4248</td>
+</tr>
+</tbody>
+</table>
+<h2 id="两个必须讲清楚的发现">6.3 两个必须讲清楚的发现</h2>
+<p><strong>发现一：原始 (D, I) 点云只能被幂律解释 35%–49%。</strong> OLS
+三行的 r² 分别是 <strong>0.3503 / 0.4855 / 0.4855</strong>。
+也就是说，把 11179
+个点直接丢进最小二乘，得到的直线只解释约三分之一到一半的方差； 那条
+<code>I = 8.416·D^(−0.8011)</code>
+的幂律<strong>形式对、参数不可靠</strong>。 文献中 I–D
+幂律之所以拟合得很好，是因为<strong>先按 D
+分箱、再取分位数/包络</strong>—— 本文的
+<code>quantile_p50_trigger</code> 与 <code>quantile_p90_all</code>
+因此拿到 <strong>r² = 0.9909 / 0.9911</strong>。 <strong>把 “OLS 全点”
+和 “分位数包络” 混为一谈，是这类复现里最常见的错误。</strong>
+本项目因此把两类结果并列报告。</p>
+<p><strong>发现二：阈值曲线的精度／召回权衡极其陡峭。</strong>
+<code>quantile_p90_trigger</code>（<code>I = 47.35·D^(−0.5535)</code>）是准确率最高的经验曲线（0.7733），
+precision 高达 0.9271（1153 个负样本里只误报 7 个）， 但 recall 只有
+<strong>0.2005</strong>——它把阈值抬得很高，代价是<strong>漏掉 444
+个触发场中的 355 个</strong>，
+作为预警阈值<strong>不可用</strong>。反过来，把线压低（<code>ols_all_points</code>、<code>ols_trigger_minus_1sd</code>）
+能把 recall 拉到 0.9369（444 个只漏 28 个），但 precision 掉到
+0.436–0.447， <strong>每报 10 次警有 5.5 次以上是空的</strong>。</p>
+<p><strong>与机器学习的差距</strong>：经验曲线里 F1 最高的是
+0.6055，随机森林是 <strong>0.9201</strong>， 差距
+<strong>0.31</strong>。原因是经验阈值只用 <code>(D, I)</code> 两个量，
+而随机森林同时用了历时、湿小时数、多窗长雨量、前期雨量、API 等 16
+个特征。 <strong>这个差距本身说明：单靠 I–D
+曲线做这批数据的预警，还有很大提升空间。</strong></p>
+<h2 id="机器学习等效阈值诊断失败如实报告">6.4
+机器学习等效阈值：诊断失败，如实报告</h2>
+<p><code>threshold.fit_ml_equivalent_threshold()</code> 试图从随机森林的
+0.5 概率等高线 反推一条可直接使用的 I–D 曲线（做法：对每个窗长
+D，构造合成雨场并扫描峰值深度， 取预测概率首次 ≥0.5 的深度）。</p>
+<p><strong>结果：<code>ml_equivalent_threshold</code> 返回空字典
+<code>{}</code>，诊断失败。</strong>
+原因是合成样本只有一个特征列被赋值，其余 15 个特征被填 0，
+模型在这些”物理上不可能”的输入（例如 24 h 窗口下雨量 300 mm 但历时
+<code>duration_h</code>=0）上 概率曲线不单调，无法稳定地找到 0.5
+穿越点。</p>
+<p>本文<strong>如实记录该失败</strong>，而不是换一套参数把它”调出”一条好看的曲线。
+这也提示：<strong>把树模型的决策面反解成单条幂律曲线，在这类多特征问题上并不可靠</strong>；
+若要做 ML 阈值，更稳妥的路线是直接输出概率（如 §5.3）而非反解曲线。</p>
+<hr />
+<h1 id="任务-b流域易发性分类">7. 任务 B：流域易发性分类</h1>
+<h2 id="样本与标签">7.1 样本与标签</h2>
+<ul>
+<li><strong>一行 = 一个流域</strong>，共 <strong>79 行</strong>。</li>
+<li><strong>标签</strong>：<code>susceptible = (n_events &gt; median(n_events))</code>，中位数
+= <strong>1.0</strong>， 因此正类 <strong>35</strong> 个（事件数
+≥2），负类 <strong>44</strong> 个（事件数 ≤1）。</li>
+<li><strong>防泄漏</strong>：显式排除事件派生列 <code>n_events</code>,
+<code>first_event</code>, <code>last_event</code>,
+<code>total_volume_m3</code>,
+<code>event_span_years</code>——它们直接由标签算出，留下就是自欺。
+模型只用 <strong>13</strong> 个形态 + 防治特征。</li>
+</ul>
+<h2 id="结果repeatedstratifiedkfold5-折-10-次重复">7.2
+结果（RepeatedStratifiedKFold，5 折 × 10 次重复）</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th>accuracy</th>
+<th>precision</th>
+<th>recall</th>
+<th>F1</th>
+<th>ROC-AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>logistic_regression</strong></td>
+<td><strong>0.7598 ± 0.0970</strong></td>
+<td><strong>0.7543</strong></td>
+<td><strong>0.7429</strong></td>
+<td><strong>0.7307 ± 0.1079</strong></td>
+<td>0.8082</td>
+</tr>
+<tr>
+<td>random_forest</td>
+<td>0.7277 ± 0.0847</td>
+<td>0.6920</td>
+<td>0.7457</td>
+<td>0.7001 ± 0.1125</td>
+<td>0.7951</td>
+</tr>
+<tr>
+<td>svm_rbf</td>
+<td>0.7115 ± 0.1129</td>
+<td>0.6833</td>
+<td>0.7057</td>
+<td>0.6738 ± 0.1504</td>
+<td>0.7822</td>
+</tr>
+<tr>
+<td>gradient_boosting</td>
+<td>0.7140 ± 0.1091</td>
+<td>0.7043</td>
+<td>0.6800</td>
+<td>0.6737 ± 0.1262</td>
+<td>0.7992</td>
+</tr>
+<tr>
+<td>xgboost</td>
+<td>0.7326 ± 0.0803</td>
+<td>0.7101</td>
+<td>0.7029</td>
+<td>0.6927 ± 0.1070</td>
+<td><strong>0.8186</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>读法</strong>：标准差 ≈ 0.08–0.11，模型间 accuracy
+差距（0.7115–0.7598）<strong>小于一个标准差</strong>。
+因此<strong>不能声称”逻辑回归优于随机森林”</strong>，只能说”在这个标签定义下，
+形态 + 防治特征能提供约 <strong>0.78–0.82</strong> 的 ROC-AUC
+排序能力，且不稳定”。</p>
+<p><strong>5 折 OOF
+混淆矩阵</strong>（一次性留出，便于看错误结构）：</p>
+<ul>
+<li>随机森林：acc 0.7468 / F1 0.7222，CM
+<code>[[33, 11], [9, 26]]</code></li>
+<li>逻辑回归：acc 0.7342 / F1 0.6957，CM
+<code>[[34, 10], [11, 24]]</code></li>
+</ul>
+<h2 id="特征重要性">7.3 特征重要性</h2>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>RF 重要性</th>
+<th>逻辑回归系数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>centroid_lat</code></td>
+<td><strong>0.1543</strong></td>
+<td>−0.5265</td>
+</tr>
+<tr>
+<td><code>n_gullies</code></td>
+<td>0.1272</td>
+<td><strong>+1.9491</strong></td>
+</tr>
+<tr>
+<td><code>poly_perimeter_km</code></td>
+<td>0.1127</td>
+<td>+0.4610</td>
+</tr>
+<tr>
+<td><code>bbox_height_km</code></td>
+<td>0.1109</td>
+<td>−0.1581</td>
+</tr>
+<tr>
+<td><code>area_km2</code></td>
+<td>0.0955</td>
+<td>+0.2082</td>
+</tr>
+<tr>
+<td><code>compactness</code></td>
+<td>0.0885</td>
+<td>+0.6170</td>
+</tr>
+<tr>
+<td><code>centroid_lon</code></td>
+<td>0.0860</td>
+<td>−0.3197</td>
+</tr>
+<tr>
+<td><code>bbox_aspect</code></td>
+<td>0.0787</td>
+<td>−0.1313</td>
+</tr>
+<tr>
+<td><code>bbox_width_km</code></td>
+<td>0.0740</td>
+<td>+0.2866</td>
+</tr>
+<tr>
+<td><code>dam_number</code></td>
+<td>0.0366</td>
+<td>+0.4310</td>
+</tr>
+<tr>
+<td><code>has_dam</code></td>
+<td>0.0155</td>
+<td>+0.1326</td>
+</tr>
+<tr>
+<td><code>has_built_year</code></td>
+<td>0.0144</td>
+<td>+0.1331</td>
+</tr>
+<tr>
+<td><code>built_year</code></td>
+<td>0.0058</td>
+<td>+0.1418</td>
+</tr>
+</tbody>
+</table>
+<p><strong>地理位置（<code>centroid_lat</code>／<code>centroid_lon</code>）和流域规模（<code>n_gullies</code>、<code>poly_perimeter_km</code>、
+<code>area_km2</code>）主导了预测</strong>，而<strong>防治特征（<code>dam_number</code>、<code>has_dam</code>、<code>built_year</code>）重要性都很低</strong>（≤0.037）。
+逻辑回归中 <code>n_gullies</code>
+系数最大（+1.95），即<strong>支沟越多的流域越易发</strong>——符合”物源供给面积大”的直觉。</p>
+<blockquote>
+<p><strong>位置特征的解释要克制。</strong> <code>centroid_lat</code>
+重要性最高，但它很可能只是
+<strong>“离震中／发震断层的距离”的代理变量</strong>，而不是因果驱动因素。
+本文不把它解读为”纬度越高越危险”。</p>
+</blockquote>
+<hr />
+<h1 id="震后时效与工程防治">8. 震后时效与工程防治</h1>
+<h2 id="触发雨量随年份的变化">8.1 触发雨量随年份的变化</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>年份</th>
+<th>触发行数</th>
+<th>事件数</th>
+<th>平均历时 h</th>
+<th>平均总雨量 mm</th>
+<th>平均 max1h mm</th>
+<th>平均雨强 mm/h</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2008</td>
+<td>10</td>
+<td>10</td>
+<td>13.4</td>
+<td>18.7</td>
+<td>4.2</td>
+<td>1.11</td>
+</tr>
+<tr>
+<td>2009</td>
+<td>4</td>
+<td>4</td>
+<td>23.5</td>
+<td>26.9</td>
+<td>9.5</td>
+<td>1.24</td>
+</tr>
+<tr>
+<td>2010</td>
+<td>230</td>
+<td>79</td>
+<td>15.9</td>
+<td>63.3</td>
+<td>18.8</td>
+<td>4.52</td>
+</tr>
+<tr>
+<td>2011</td>
+<td>45</td>
+<td>21</td>
+<td>18.0</td>
+<td>47.3</td>
+<td>13.0</td>
+<td>2.84</td>
+</tr>
+<tr>
+<td>2012</td>
+<td>2</td>
+<td>1</td>
+<td>12.5</td>
+<td>79.7</td>
+<td>37.9</td>
+<td>8.17</td>
+</tr>
+<tr>
+<td>2013</td>
+<td>130</td>
+<td>15</td>
+<td>52.6</td>
+<td>221.1</td>
+<td>18.4</td>
+<td>4.31</td>
+</tr>
+<tr>
+<td>2016</td>
+<td>8</td>
+<td>1</td>
+<td>35.0</td>
+<td>91.5</td>
+<td>14.3</td>
+<td>2.56</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>14</td>
+<td>12</td>
+<td>36.7</td>
+<td>181.3</td>
+<td>24.6</td>
+<td>4.82</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>1</td>
+<td>1</td>
+<td>59.0</td>
+<td>344.7</td>
+<td>32.6</td>
+<td>5.84</td>
+</tr>
+</tbody>
+</table>
+<p><strong>不做”阈值恢复”的结论。</strong> 表中可见 2008–2009
+年触发雨量很小（平均总雨量 18.7 / 26.9 mm）， 2010 年后明显抬升（63.3 →
+221.1 → 181.3 → 344.7
+mm），<strong>方向与”震后阈值随时间恢复”一致</strong>。 但：</p>
+<ol type="1">
+<li>每年样本量极度不均（2010 年 230 行 vs 2020 年 1 行）；</li>
+<li>触发雨量的大小还取决于<strong>当年下了什么雨</strong>，不是纯粹的阈值指标；</li>
+<li>要把”阈值恢复”做成结论，需要<strong>同年内”触发／非触发”对比</strong>而非跨年比较均值。</li>
+</ol>
+<p>因此本文<strong>只描述现象，不做因果断言</strong>。这是与 C7
+一致的态度。</p>
+<h2 id="工程防治与事件数选址偏差">8.2 工程防治与事件数：选址偏差</h2>
+<table>
+<thead>
+<tr>
+<th>坝数</th>
+<th>流域数</th>
+<th>事件数</th>
+<th>平均事件数</th>
+<th>高易发流域</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>56</td>
+<td>105</td>
+<td><strong>1.88</strong></td>
+<td>20/56</td>
+</tr>
+<tr>
+<td>1</td>
+<td>9</td>
+<td>25</td>
+<td>2.78</td>
+<td>4/9</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>9</td>
+<td>3.00</td>
+<td>3/3</td>
+</tr>
+<tr>
+<td>≥3</td>
+<td>11</td>
+<td>28</td>
+<td>2.55</td>
+<td>8/11</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>建成年</th>
+<th>流域数</th>
+<th>事件数</th>
+<th>平均事件数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无记录</td>
+<td>57</td>
+<td>122</td>
+<td>2.14</td>
+</tr>
+<tr>
+<td>2011</td>
+<td>6</td>
+<td>9</td>
+<td>1.50</td>
+</tr>
+<tr>
+<td>2012</td>
+<td>1</td>
+<td>3</td>
+<td>3.00</td>
+</tr>
+<tr>
+<td>2013</td>
+<td>12</td>
+<td>19</td>
+<td>1.58</td>
+</tr>
+<tr>
+<td>2014</td>
+<td>2</td>
+<td>10</td>
+<td>5.00</td>
+</tr>
+<tr>
+<td>2018</td>
+<td>1</td>
+<td>4</td>
+<td>4.00</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><code>prevented</code></th>
+<th>流域数</th>
+<th>事件数</th>
+<th>平均事件数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>False</td>
+<td>62</td>
+<td>134</td>
+<td>2.16</td>
+</tr>
+<tr>
+<td>True</td>
+<td>17</td>
+<td>33</td>
+<td>1.94</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论：这批数据无法用来评估拦砂坝的防治效果。</strong>
+有坝流域平均事件数（2.55–3.00）是<strong>无坝流域（1.88）的 1.4–1.6
+倍</strong>。
+这不是”坝导致了泥石流”，而是<strong>选址偏差</strong>：坝被建在历史上灾害更频发、威胁更大的流域。
+同向证据：<code>corr(area, has_dam) = 0.5133</code>（大流域更可能有坝），
+而 <code>corr(area, n_events) = −0.0175</code>（面积与事件数几乎无关）——
+说明有坝流域的”较高事件数”不能由面积解释。</p>
+<p>另外，<code>prevented=True</code>
+的流域平均事件数（1.94）反而<strong>低于</strong>
+<code>prevented=False</code>（2.16）， 但这个差值（0.22 次）在 79
+个流域的样本量下<strong>不构成证据</strong>，不做解读。</p>
+<p><strong>正确做法</strong>（本数据不支持，故不实施）：需要<strong>事件前后对比</strong>（坝建成时间已知，
+可做 interrupted time series 或 before/after 对照），而不是横截面比较。
+本数据集提供了 <code>built_year</code>，理论上可做，但建成年高度集中在
+2011–2014，
+且坝建成后的观测年份太少，<strong>功效不足以支撑结论</strong>。</p>
+<hr />
+<h1 id="差异分析与局限">9. 差异分析与局限</h1>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>项</th>
+<th>原文声明</th>
+<th>本次复现</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事件数</td>
+<td>186</td>
+<td>186</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>流域数</td>
+<td>79</td>
+<td>79</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>雨量站数</td>
+<td>89</td>
+<td>39（按文件名编号去重）</td>
+<td><strong>口径差异</strong>：原文 89 指覆盖 1566 km²
+的全部站，本数据集只随事件打包了其中的子集</td>
+</tr>
+<tr>
+<td>研究区面积</td>
+<td>892 km²</td>
+<td>851.0 km²（79 多边形之和）</td>
+<td>−4.6%，口径差异</td>
+</tr>
+<tr>
+<td>降雨阈值</td>
+<td><strong>未报告</strong></td>
+<td>6 条经验曲线 + 5 个 ML 模型</td>
+<td>原文为数据论文，无此内容</td>
+</tr>
+<tr>
+<td>易发性</td>
+<td><strong>未报告</strong></td>
+<td>5 个模型，AUC 0.78–0.82</td>
+<td>原文为数据论文，无此内容</td>
+</tr>
+</tbody>
+</table>
+<h2 id="主要局限">主要局限</h2>
+<ol type="1">
+<li><strong>样本独立性</strong>：Task A 的 1597 行来自 146
+个事件文件夹，事件内相关性无法完全消除， <code>GroupKFold</code>
+只是缓解。真要做预警系统，应按<strong>流域</strong>或<strong>年份</strong>做外层分组。</li>
+<li><strong>时间不平衡</strong>：2010 年占 52.7%
+的事件，模型很可能在学”2010 年的雨”。</li>
+<li><strong>temporal 协议不可用</strong>：≥2016 只有 57 行。</li>
+<li><strong>易发性标签是相对的</strong>：<code>n_events &gt; median</code>
+只是把流域分成两半，
+不代表物理意义上的”易发/不易发”；换个切分点结论会变。</li>
+<li><strong>无
+DEM</strong>：缺少坡度、高程、沟道比降等真正控制泥石流的地形因子， 是
+Task B 信号弱的最可能原因。</li>
+<li><strong>工程防治不可评估</strong>：见 8.2
+节，横截面数据存在选址偏差。</li>
+<li><strong>未做阈值的不确定性量化</strong>：I–D
+曲线只给了点估计，没有置信带。</li>
+<li><strong>正样本标注依赖日历日</strong>：95
+条事件无时刻，触发判定用整日窗口， 7/444
+的正样本退化为”当天之前最后一场雨”。</li>
+</ol>
+<h2 id="与文献阈值的关系">与文献阈值的关系</h2>
+<p>本文<strong>刻意不把未核验的文献系数当基线</strong>。此前调研中出现的若干汶川震区
+I–D 系数 （如 Guo 2016、Tang 2012、Zhou &amp; Tang 2014、Jiang 2021
+等），
+当时只能取到搜索结果标题与链接、<strong>无法取得全文核验</strong>，
+因此<strong>一律不作为定量对照</strong>。本项目报告的所有阈值系数<strong>均由本次数据自行拟合</strong>，
+可完整复算。若后续取得全文，可在同一评分口径下补充对比。</p>
+<hr />
+<h1 id="复现说明">10. 复现说明</h1>
+<h2 id="一键复现">10.1 一键复现</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>m venv <span class="op">.</span><span class="fu">venv</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\<span class="op">.</span><span class="fu">venv</span>\Scripts\python<span class="op">.</span><span class="fu">exe</span> <span class="op">-</span>m pip install <span class="op">-</span>r requirements<span class="op">.</span><span class="fu">txt</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\<span class="op">.</span><span class="fu">venv</span>\Scripts\python<span class="op">.</span><span class="fu">exe</span> run_all<span class="op">.</span><span class="fu">py</span></span></code></pre></div>
+<p><code>run_all.py</code> 顺序执行 5 个阶段：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>阶段</th>
+<th>脚本</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>scripts/build_interim.py</code></td>
+<td><code>data/interim/*.csv</code>、<code>data/processed/rain_events_raw.csv</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>scripts/build_catchment_features.py</code></td>
+<td><code>data/processed/catchment_features.csv</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>scripts/run_models.py</code></td>
+<td><code>results/metrics_summary.csv</code>、两个 JSON</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>scripts/make_figures.py</code></td>
+<td><code>results/figures/*.png</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>scripts/verify_results.py</code></td>
+<td>对 <code>results/repro_manifest.json</code> 逐个 SHA-256 校验</td>
+</tr>
+</tbody>
+</table>
+<h2 id="随机性与确定性">10.2 随机性与确定性</h2>
+<ul>
+<li><strong>固定种子</strong>：<code>SEED = 20220901</code>（<code>scripts/run_models.py</code>）与
+<code>SPLIT_SEED = 20220901</code>（<code>src/wenchuan/models.py</code>）。</li>
+<li>所有 estimator 的 <code>random_state</code>、所有 CV 的
+<code>random_state</code> 都由该种子派生； <code>n_jobs=1</code>
+以避免并行导致的浮点归约顺序差异。</li>
+<li><strong>逐字节可复现已实测验证</strong>：连续两次运行
+<code>run_all.py</code>（第二次含完整校验）， 16 个产物全部通过 SHA-256
+比对，输出 <code>OK: every artefact reproduces bit-for-bit.</code>
+完整日志见 <code>results/run_all_stdout.txt</code> 与
+<code>results/repro_run2.log</code>。</li>
+<li>单次全流程运行时间约 <strong>52–63 秒</strong>（Windows
+11，CPU）。</li>
+</ul>
+<h2 id="关键参数汇总">10.3 关键参数汇总</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>随机种子</td>
+<td>20220901</td>
+<td><code>run_models.py</code>, <code>models.py</code></td>
+</tr>
+<tr>
+<td>湿小时阈值</td>
+<td>0.1 mm</td>
+<td><code>features.py</code> <code>WET_MM</code></td>
+</tr>
+<tr>
+<td>场次切分干间隔</td>
+<td>6 h</td>
+<td><code>features.py</code> <code>DRY_GAP_H</code></td>
+</tr>
+<tr>
+<td>场次最小总雨量</td>
+<td>1.0 mm</td>
+<td><code>features.py</code> <code>MIN_TOTAL_MM</code></td>
+</tr>
+<tr>
+<td>API 衰减系数</td>
+<td>0.9 /h</td>
+<td><code>features.py</code> <code>API_K</code></td>
+</tr>
+<tr>
+<td>I–D 窗长</td>
+<td>1,3,6,12,24,48,72 h</td>
+<td><code>threshold.py</code> <code>WINDOWS</code></td>
+</tr>
+<tr>
+<td>Task A 随机划分</td>
+<td>7:3 分层</td>
+<td><code>run_models.py</code></td>
+</tr>
+<tr>
+<td>Task A 主协议</td>
+<td><code>GroupKFold(5)</code> on <code>DF_ID</code></td>
+<td><code>run_models.py</code></td>
+</tr>
+<tr>
+<td>Task A 时间划分</td>
+<td>训练 ≤2013 / 测试 ≥2016</td>
+<td><code>run_models.py</code></td>
+</tr>
+<tr>
+<td>Task B 评测</td>
+<td><code>RepeatedStratifiedKFold(5×10)</code></td>
+<td><code>run_models.py</code></td>
+</tr>
+<tr>
+<td>随机森林</td>
+<td>500 棵, <code>min_samples_leaf=2</code></td>
+<td><code>models.py</code></td>
+</tr>
+<tr>
+<td>XGBoost</td>
+<td>400 棵, depth 4, lr 0.05</td>
+<td><code>models.py</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="产物清单">10.4 产物清单</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>results/metrics_summary.csv</code></td>
+<td>全部模型的 acc / prec / rec / F1 / AUC / 混淆矩阵（27 行）</td>
+</tr>
+<tr>
+<td><code>results/task_a_rainfall_threshold.json</code></td>
+<td>Task A 全量结果：三协议、6 条 I–D 曲线、特征重要性、逐年雨量</td>
+</tr>
+<tr>
+<td><code>results/task_b_susceptibility.json</code></td>
+<td>Task B 全量结果：CV 均值/标准差、OOF、特征重要性、79 流域明细</td>
+</tr>
+<tr>
+<td><code>results/figures/fig01..07*.png</code></td>
+<td>7 张图</td>
+</tr>
+<tr>
+<td><code>results/repro_manifest.json</code></td>
+<td>16 个产物的 SHA-256</td>
+</tr>
+<tr>
+<td><code>results/run_all_stdout.txt</code></td>
+<td>首次全流程日志</td>
+</tr>
+<tr>
+<td><code>results/repro_run2.log</code></td>
+<td>第二次全流程 + 复现校验日志</td>
+</tr>
+<tr>
+<td><code>docs/_numbers.md</code></td>
+<td>报告引用数字的自动汇总（由
+<code>scripts/explore/report_numbers.py</code> 生成，可重算）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>所有图的数字都能在 CSV/JSON
+中查到，报告不依赖读图。</strong></p>
+<h2 id="环境">10.5 环境</h2>
+<p>Windows 11 x64，Python 3.12.10，pandas 3.0.6 / numpy 2.5.3 /
+scikit-learn 1.9.1 / matplotlib 3.11.2 / seaborn 0.13.2 / xgboost
+3.4.1。<strong>CPU 即可，无 GPU，无深度学习。</strong>
+<code>src/wenchuan/geometry.py</code> 与 <code>dbf.py</code> 是手写的
+SHP/DBF 读取器， <strong>刻意不依赖 geopandas / GDAL /
+fiona</strong>，避免复现时卡在二进制依赖上。</p>
+<p>生成 <code>docs/report.pdf</code> 需要 <code>pandoc</code> + 无头
+Edge/Chrome：</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\<span class="op">.</span><span class="fu">venv</span>\Scripts\python<span class="op">.</span><span class="fu">exe</span> scripts\build_report<span class="op">.</span><span class="fu">py</span></span></code></pre></div>
+<h2 id="来源改动点与已更正的错误">10.6 来源、改动点与已更正的错误</h2>
+<p>本仓库代码<strong>全部自行编写，未复制任何外部开源实现</strong>。借鉴的是方法学惯例：</p>
+<ul>
+<li><code>I = a·D^(−b)</code> 幂律形式来自 Caine
+(1980)（本领域通行形式）；</li>
+<li>固定窗长最大雨量构造 (D, I) 对，是降雨阈值研究的标准做法；</li>
+<li><code>GroupKFold</code>
+按事件分组防泄漏、以中位数切分易发性标签，均为通行做法。</li>
+</ul>
+<p><strong>已更正的错误</strong>（保留记录以免误导后续读者）：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>位置</th>
+<th>原值</th>
+<th>实测更正</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本报告早期草稿 C4</td>
+<td>OLS r² = 0.0200 / 0.0197</td>
+<td><strong>0.3503 / 0.4855</strong></td>
+</tr>
+<tr>
+<td>本报告早期草稿 C4</td>
+<td>分位数 r² = 0.9204</td>
+<td><strong>0.9909 / 0.9649 / 0.9911</strong></td>
+</tr>
+<tr>
+<td>本报告早期草稿 C2</td>
+<td>前三特征 duration/total/n_wet</td>
+<td><strong>n_wet_hours / duration_h / max_24h</strong></td>
+</tr>
+<tr>
+<td>本报告早期草稿 C6</td>
+<td>有坝流域事件数 3.3–4.5 倍</td>
+<td><strong>1.4–1.6 倍</strong></td>
+</tr>
+<tr>
+<td><code>make_figures.py</code> 图 1 标题</td>
+<td>“r = 0.01”</td>
+<td>改为运行时计算（实测 <strong>0.274</strong>）</td>
+</tr>
+<tr>
+<td><code>threshold.py</code> 文档字符串</td>
+<td>“Pearson r = −0.08”</td>
+<td>实测 <strong>+0.274</strong>（见 §6.1）</td>
+</tr>
+<tr>
+<td><code>README.md</code> §6</td>
+<td>“1597 行 / 439 正样本”</td>
+<td><strong>444 正样本</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="附录-a图表清单">附录 A：图表清单</h1>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>图</th>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>图 1</td>
+<td><code>fig01_id_scatter.png</code></td>
+<td>湿 spell 定义的 (D, I) 散点（标题内嵌实测 r）</td>
+</tr>
+<tr>
+<td>图 2</td>
+<td><code>fig02_id_windows.png</code></td>
+<td>固定窗长 (D, I) 点云 + 拟合曲线（ML 等效曲线缺失，见 §6.4）</td>
+</tr>
+<tr>
+<td>图 3</td>
+<td><code>fig03_events_by_year.png</code></td>
+<td>逐年事件数与触发雨量强度</td>
+</tr>
+<tr>
+<td>图 4</td>
+<td><code>fig04_task_a_models.png</code></td>
+<td>Task A 三协议下各模型 accuracy / F1</td>
+</tr>
+<tr>
+<td>图 5</td>
+<td><code>fig05_confusion.png</code></td>
+<td>Task A、Task B 混淆矩阵</td>
+</tr>
+<tr>
+<td>图 6</td>
+<td><code>fig06_feature_importance.png</code></td>
+<td>两个任务的特征重要性</td>
+</tr>
+<tr>
+<td>图 7</td>
+<td><code>fig07_susceptibility.png</code></td>
+<td>事件数分布、面积-事件散点、坝数-事件柱状</td>
+</tr>
+</tbody>
+</table>
+<h1 id="附录-b数据引用">附录 B：数据引用</h1>
+<p>Wang L., Chang M., Le J., Xiang L., Ni Z. (2022). <em>Two
+multi-temporal datasets to track debris flow after the 2008 Wenchuan
+earthquake.</em> Scientific Data 9:525. doi:10.1038/s41597-022-01658-y。
+数据：doi:10.5281/zenodo.6891244（CC BY 4.0）。 数据集基于 Fan et
+al. (2019) 更新而来。</p>
+</body>
+</html>

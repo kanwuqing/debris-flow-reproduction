@@ -1,0 +1,21 @@
+OK  data/interim/catchments.csv size=11431 sha=e994c6092012
+OK  data/interim/events.csv size=33490 sha=ceb0c0a7b3a0
+OK  data/interim/rain_index.csv size=84159 sha=123929167c91
+OK  data/processed/catchment_features.csv size=25324 sha=8ddd0eb20cbe
+OK  data/processed/rain_events_raw.csv size=313762 sha=4b7f0b75e218
+OK  data/processed/task_a_rainstorms.csv size=385097 sha=6721ab273ab6
+OK  results/figures/fig01_id_scatter.png size=59118 sha=62207c2a8570
+OK  results/figures/fig02_id_windows.png size=92198 sha=273c85c780d8
+OK  results/figures/fig03_events_by_year.png size=82373 sha=81045f6236db
+OK  results/figures/fig04_task_a_models.png size=48953 sha=8bab8df26550
+OK  results/figures/fig05_confusion.png size=27497 sha=122469875efe
+OK  results/figures/fig06_feature_importance.png size=66934 sha=554945c86500
+OK  results/figures/fig07_susceptibility.png size=72720 sha=7e49e9647544
+OK  results/metrics_summary.csv size=3827 sha=910c5304a101
+OK  results/task_a_rainfall_threshold.json size=17315 sha=4236a8a16451
+OK  results/task_b_susceptibility.json size=34337 sha=cba396d75821
+
+artefacts=16 mismatches=0
+
+duplicate-content groups:
+  none - every artefact has unique content

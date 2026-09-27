@@ -1,0 +1,18 @@
+# RainGaugeNet -- reproduction of Wang et al. (2022), Scientific Data 9:525
+# DOI 10.1038/s41597-022-01658-y / data DOI 10.5281/zenodo.6891244
+#
+# CPU only, no GPU, no deep learning.  Versions are the ones the committed
+# results/ artefacts were produced with (Python 3.12.10, Windows x64).
+
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+matplotlib>=3.8
+seaborn>=0.13
+
+# optional: the XGBoost rows in results/metrics_summary.csv disappear cleanly
+# if it is absent (models._xgboost() returns None and the model is skipped)
+xgboost>=2.0
+
+# report toolchain (docs/report.pdf is committed, so these are only needed to
+# regenerate it): pandoc + a headless Chromium/Edge for the HTML -> PDF step

@@ -1,0 +1,70 @@
+{
+  "note": "SHA-256 of every artefact produced by run_all.py (seed 20220901). Re-run run_all.py and this file must not change.",
+  "n_files": 16,
+  "files": {
+    "data/interim/events.csv": {
+      "sha256": "ceb0c0a7b3a0188bb9bc711a09fde57228d37aae399211143364fbd221968460",
+      "bytes": 33490
+    },
+    "data/interim/catchments.csv": {
+      "sha256": "e994c6092012d66468edf87e3cf1fdd217780dfe4019cd4b85c2040105f96406",
+      "bytes": 11431
+    },
+    "data/interim/rain_index.csv": {
+      "sha256": "123929167c9124f1ac4f403a8ebf2fc688c2cfec3668176aec0d3eecf4f0c760",
+      "bytes": 84159
+    },
+    "data/processed/catchment_features.csv": {
+      "sha256": "8ddd0eb20cbe73b192ed7e3dd603a3385eab073a66d92582fc16bed63d916004",
+      "bytes": 25324
+    },
+    "data/processed/rain_events_raw.csv": {
+      "sha256": "4b7f0b75e218d4cba362013989b8720fb44d3ab24312a5717f691439c6781b99",
+      "bytes": 313762
+    },
+    "data/processed/task_a_rainstorms.csv": {
+      "sha256": "6721ab273ab601920ff36380a8f49de15e6436d76b2fa857548097d176dbd197",
+      "bytes": 385097
+    },
+    "results/metrics_summary.csv": {
+      "sha256": "910c5304a10193d180facc3ac72f9efe20949c8400cccb7c578b7a243f37fd14",
+      "bytes": 3827
+    },
+    "results/task_a_rainfall_threshold.json": {
+      "sha256": "4236a8a16451a71463b6f5a90965a194678f240e119f47b80dbfe95620667016",
+      "bytes": 17315
+    },
+    "results/task_b_susceptibility.json": {
+      "sha256": "cba396d7582148367f5a391cc22d2bd1a46bf37c897384c52c65c34e9f2b44fe",
+      "bytes": 34337
+    },
+    "results/figures/fig01_id_scatter.png": {
+      "sha256": "62207c2a8570c16b252eeff01b86c79a3964d6132dcacc3499d4b84da26e32a3",
+      "bytes": 59118
+    },
+    "results/figures/fig02_id_windows.png": {
+      "sha256": "273c85c780d8c3ba64ea53a47ffd337160024dbeea7093fdc214a95bc7bdea79",
+      "bytes": 92198
+    },
+    "results/figures/fig03_events_by_year.png": {
+      "sha256": "81045f6236db1fed11114c22e175f3ed7bffca246d26bb55ecabbd705321df60",
+      "bytes": 82373
+    },
+    "results/figures/fig04_task_a_models.png": {
+      "sha256": "8bab8df2655056ce37e68151c7af084079df8113a35a3bed9498b892e3b2c150",
+      "bytes": 48953
+    },
+    "results/figures/fig05_confusion.png": {
+      "sha256": "122469875efe1954c3dfd88f7c887ac7edadb4fb4966c93efcc98e1b7991f4a0",
+      "bytes": 27497
+    },
+    "results/figures/fig06_feature_importance.png": {
+      "sha256": "554945c865003531dc85ae356d625720c758ee73c312ebfb8e59b936ce8a2cbc",
+      "bytes": 66934
+    },
+    "results/figures/fig07_susceptibility.png": {
+      "sha256": "7e49e96475440ed4525121666d4d78ee6e86bd46d2d85eb772f2f9b001eceb49",
+      "bytes": 72720
+    }
+  }
+}

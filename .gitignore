@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# build / temp
+.tmp/
+.pdfbuild/
+.pypdfbuild/
+dist/
+build/
+
+# raw data (downloaded separately from Zenodo, see README)
+data/raw/
+
+# machine-generated docs copied from the paper archive
+docs/raw/
+docs/refs/
+
+# empty stderr log from pipeline runs
+results/run_all_stderr.txt
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

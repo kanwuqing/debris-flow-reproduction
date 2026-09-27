@@ -1,0 +1,203 @@
+removed cached data\processed\task_a_rainstorms.csv
+
+=== stage: interim tables ===
+
+##############################################################################
+# build_interim.py
+##############################################################################
+
+==============================================================================
+CLEANED TABLES
+==============================================================================
+events      : (186, 19)
+rain_index  : (465, 7)
+catchments  : (79, 24)
+
+events with C_ID: 167 / 186
+events with rain folder: 147 / 186
+
+catchments with dam info: 79 / 79
+catchments n_events describe:
+count    79.000000
+mean      2.113924
+std       2.899988
+min       0.000000
+25%       1.000000
+50%       1.000000
+75%       2.000000
+max      17.000000
+n catchments with 0 events: 12
+
+==============================================================================
+GAUGE SERIES GAP DIAGNOSTICS
+==============================================================================
+{'n_files_sampled': 60, 'max_missing_hours_in_range': 0, 'distinct_step_hours': [1.0]}
+
+==============================================================================
+RAIN EVENT FEATURES
+==============================================================================
+rows: 1597
+trigger rows: 444
+DF_ID with a labelled trigger: 144 / folders 147
+
+feature summary for triggering rainstorms:
+       duration_h    total_mm      max_1h     max_24h  mean_intensity  antecedent_24h  antecedent_72h         api
+count  444.000000  444.000000  444.000000  444.000000      444.000000      444.000000       444.00000  444.000000
+mean    27.950450  111.481757   17.896171   84.841216        4.177397       34.730856        41.89009    8.187940
+std     19.714721  120.679538   10.626005   72.982833        3.514804       36.435228        39.89163    8.422461
+min      1.000000    1.100000    0.600000    1.100000        0.250000        0.000000         0.00000    0.000000
+25%     12.000000   36.000000   10.400000   35.200000        1.760000        1.500000         2.00000    0.195690
+50%     20.000000   49.100000   15.900000   44.800000        2.617391       29.400000        34.40000    5.063594
+75%     36.000000  153.700000   22.525000  138.900000        5.700855       62.900000        77.40000   16.804746
+max     82.000000  591.900000   60.700000  297.400000       13.175000      246.800000       286.80000   48.271655
+
+non-triggering rainstorms:
+        duration_h     total_mm       max_1h      max_24h  mean_intensity  antecedent_24h  antecedent_72h           api
+count  1153.000000  1153.000000  1153.000000  1153.000000     1153.000000     1153.000000     1153.000000  1.153000e+03
+mean      8.797051    26.994016    12.088118    26.724458        2.868274        6.347788       16.856982  1.464055e+00
+std       8.320016    33.854625    16.209913    32.964208        3.270589       24.715717       47.713836  5.593745e+00
+min       1.000000     1.100000     0.200000     1.100000        0.043077        0.000000        0.000000  0.000000e+00
+25%       4.000000     2.000000     1.500000     2.000000        0.580000        0.000000        0.000000  6.953767e-08
+50%       8.000000     9.000000     4.900000     9.000000        2.150000        0.000000        1.200000  6.567727e-02
+75%      11.000000    44.900000    17.000000    44.900000        3.522222        1.900000       10.900000  5.662236e-01
+max      65.000000   297.400000   260.900000   297.400000       59.480000      298.000000      393.200000  4.927146e+01
+# build_interim.py finished in 1.8s
+
+=== stage: catchment features ===
+
+##############################################################################
+# build_catchment_features.py
+##############################################################################
+==============================================================================
+CATCHMENT FEATURE TABLE
+==============================================================================
+shape: (79, 34)
+
+area cross-check (polygon vs .dbf attribute):
+count    7.900000e+01
+mean     1.503637e-07
+std      3.874795e-07
+min      8.865514e-10
+25%      1.532078e-08
+50%      3.722268e-08
+75%      8.115200e-08
+max      2.522245e-06
+max rel err: 2.522245220564249e-06 | rows >1%: 0
+
+area_km2 stats: {'count': 79.0, 'mean': 10.772709075949368, 'std': 13.00464656532741, 'min': 0.169004, '25%': 2.7244580000000003, '50%': 5.591788, '75%': 13.612179000000001, 'max': 54.725198}
+compactness stats: {'count': 79.0, 'mean': 0.6274059562902546, 'std': 0.08880892790102973, 'min': 0.38817839055397885, '25%': 0.5703325046380019, '50%': 0.6271219642409899, '75%': 0.6751200962577202, 'max': 0.846177964298445}
+centroid lon range: 103.32583295946178 103.63229415473394
+centroid lat range: 30.989368986908847 31.477240105077527
+
+dam_number distribution:
+dam_number
+0    56
+1     9
+2     3
+3     6
+4     3
+5     2
+
+built_year distribution:
+built_year
+2011.0     6
+2012.0     1
+2013.0    12
+2014.0     2
+2018.0     1
+NaN       57
+
+n_events distribution:
+n_events
+0     12
+1     32
+2     16
+3     10
+4      3
+5      1
+6      2
+10     1
+17     2
+
+correlation area vs n_events: -0.017454220034856863
+correlation area vs has_dam: 0.5132559038805333
+
+wrote -> C:\Users\kwq\RainGaugeNet\data\processed\catchment_features.csv
+# build_catchment_features.py finished in 0.6s
+
+=== stage: models + thresholds ===
+
+##############################################################################
+# run_models.py
+##############################################################################
+
+==============================================================================
+TASK A -- RAINFALL THRESHOLD
+==============================================================================
+rows: 1597  positives: 444  rate: 0.278
+
+[random]
+  logistic_regression    acc=0.9125 prec=0.8182 rec=0.8797 f1=0.8478 auc=0.9214
+  random_forest          acc=0.9625 prec=0.9389 rec=0.9248 f1=0.9318 auc=0.9876
+  svm_rbf                acc=0.9250 prec=0.8593 rec=0.8722 f1=0.8657 auc=0.9224
+  gradient_boosting      acc=0.9583 prec=0.9313 rec=0.9173 f1=0.9242 auc=0.9785
+  xgboost                acc=0.9646 prec=0.9462 rec=0.9248 f1=0.9354 auc=0.9890
+
+[group_event]
+  logistic_regression    acc=0.9036 prec=0.8059 rec=0.8604 f1=0.8322 auc=0.9225
+  random_forest          acc=0.9562 prec=0.9329 rec=0.9077 f1=0.9201 auc=0.9832
+  svm_rbf                acc=0.9180 prec=0.8323 rec=0.8829 f1=0.8568 auc=0.9340
+  gradient_boosting      acc=0.9555 prec=0.9388 rec=0.8986 f1=0.9183 auc=0.9735
+  xgboost                acc=0.9580 prec=0.9415 rec=0.9054 f1=0.9231 auc=0.9802
+
+[temporal]
+  logistic_regression    acc=0.9825 prec=0.9583 rec=1.0000 f1=0.9787 auc=0.9949
+  random_forest          acc=0.8947 prec=1.0000 rec=0.7391 f1=0.8500 auc=0.9987
+  svm_rbf                acc=0.9825 prec=0.9583 rec=1.0000 f1=0.9787 auc=0.9987
+  gradient_boosting      acc=0.8772 prec=1.0000 rec=0.6957 f1=0.8205 auc=0.9859
+  xgboost                acc=0.8772 prec=1.0000 rec=0.6957 f1=0.8205 auc=0.9923
+
+I-D threshold fits (window-based):
+  ols_all_points           I = 8.416 * D^(-0.8011)            n= 1597 acc=0.6456 prec=0.4361 rec=0.9369 f1=0.5951
+  ols_trigger_only         I = 17.72 * D^(-0.6521)            n= 1597 acc=0.6807 prec=0.4446 rec=0.5968 f1=0.5096
+  ols_trigger_minus_1sd    I = 6.829 * D^(-0.6521)            n= 1597 acc=0.6606 prec=0.4473 rec=0.9369 f1=0.6055
+  quantile_p50_trigger     I = 18.47 * D^(-0.7397)            n= 1597 acc=0.7120 prec=0.4881 rec=0.7365 f1=0.5871
+  quantile_p90_trigger     I = 47.35 * D^(-0.5535)            n= 1597 acc=0.7733 prec=0.9271 rec=0.2005 f1=0.3296
+  quantile_p90_all         I = 43.81 * D^(-0.742)             n= 1597 acc=0.7558 prec=0.6154 rec=0.3243 f1=0.4248
+
+==============================================================================
+TASK B -- CATCHMENT SUSCEPTIBILITY
+==============================================================================
+rows: 79  positives: 35  median n_events: 1.0
+  logistic_regression    acc=0.7598+-0.0970 prec=0.7543 rec=0.7429 f1=0.7307+-0.1079 auc=0.8082
+  random_forest          acc=0.7277+-0.0847 prec=0.6920 rec=0.7457 f1=0.7001+-0.1125 auc=0.7951
+  svm_rbf                acc=0.7115+-0.1129 prec=0.6833 rec=0.7057 f1=0.6738+-0.1504 auc=0.7822
+  gradient_boosting      acc=0.7140+-0.1091 prec=0.7043 rec=0.6800 f1=0.6737+-0.1262 auc=0.7992
+  xgboost                acc=0.7326+-0.0803 prec=0.7101 rec=0.7029 f1=0.6927+-0.1070 auc=0.8186
+
+wrote -> C:\Users\kwq\RainGaugeNet\results
+# run_models.py finished in 57.8s
+
+=== stage: figures ===
+
+##############################################################################
+# make_figures.py
+##############################################################################
+figures written to C:\Users\kwq\RainGaugeNet\results\figures
+   fig01_id_scatter.png 59118 bytes
+   fig02_id_windows.png 92198 bytes
+   fig03_events_by_year.png 82373 bytes
+   fig04_task_a_models.png 48953 bytes
+   fig05_confusion.png 27497 bytes
+   fig06_feature_importance.png 66934 bytes
+   fig07_susceptibility.png 72720 bytes
+# make_figures.py finished in 2.0s
+
+##############################################################################
+# verify_results.py
+##############################################################################
+manifest artefacts: 16 | present: 16
+OK: every artefact reproduces bit-for-bit.
+# verify_results.py finished in 0.1s
+
+ALL STAGES DONE in 62.3s
